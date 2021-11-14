@@ -1,0 +1,159 @@
+
+**************Created By Ayan Hussain**************
+
+# Importing the important liberaries
+import pyttsx3
+import speech_recognition as sr
+import datetime
+import wikipedia
+import webbrowser
+import pywhatkit
+import sys
+from plyer import notification
+import psutil
+import os
+
+
+engine = pyttsx3.init()
+
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+
+def takeCommand():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        r.pause_threshold = 1
+        audio = r.listen(source)
+
+    try:
+        print("Recognizing...")
+        query = r.recognize_google(audio)
+        print(f"User said: {query}")
+
+    except:
+        print("please Say that again ...")
+        speak('please say that again')
+        return "None"
+    return query
+
+def run_bot():
+    order= takeCommand().lower()
+
+    # To search from Wikipedia
+    if 'wikipedia' in order:
+        speak('Searching Wikipedia...')
+        order = order.replace("wikipedia", "")
+        results = wikipedia.summary(order, sentences=3)
+        speak("According to Wikipedia")
+        print(results)
+        speak(results)
+
+    # To open youtube
+    elif 'open youtube' in order:
+        webbrowser.open("youtube.com")
+
+    # To open google browser
+    elif 'open google' in order:
+        webbrowser.open("google.com")
+
+    # current time
+    elif 'time' in order:
+        strTime = datetime.datetime.now().strftime("%H:%M:%S")
+        speak(f"Sir, the time is {strTime}")
+        print(f"The time is {strTime}")
+
+    # To play any video or song from youtube
+    elif 'play' in order:
+        song = order.replace('play', '')
+        speak('playing ' + song)
+        pywhatkit.playonyt(song)
+
+    # To open microsoft word
+    elif "open word" in order:
+        speak("Opening Microsoft Word")
+        os.startfile(' ') # Path of the Word
+
+    # To open microsoft excel
+    elif "open excel" in order:
+        speak("Opening Microsoft excel")
+        os.startfile('  ') # Path of the Excel
+
+    # To open microsoft powerpoint
+    elif "open powerpoint" in order:
+        speak("Opening Microsoft power point")
+        os.startfile(' ') #Path of the Power point
+
+    # It will notify you the battery status
+    elif 'battery' in order:
+        # returns a tuple
+        battery = psutil.sensors_battery()
+
+        plugged = battery.power_plugged
+
+        # description of code
+        if __name__ == "__main__":
+            if plugged:
+                percent = battery.percent
+                if percent <= 80:
+                    notification.notify(
+                        # title of notification
+                        title="Plugged In",
+
+                        # message of notification
+                        message=" For better battery life, charge upto 80%",
+
+                        # displaying time
+                        timeout=2
+                    )
+
+                elif percent == 100:
+                    notification.notify(
+                        title="Plugged In",
+                        message=" Please plugged out the charger. Battery is charged",
+                        timeout=2
+                    )
+
+                else:
+                    notification.notify(
+                        title="Plugged In",
+                        message=" Remove the charger please. For better battery life charge up to 80%",
+                        timeout=2
+                    )
+
+            else:
+                percent = battery.percent
+                if percent <= 20:
+                    notification.notify(
+                        title="Battery Reminder",
+                        message="Your battery is running low. You might want to plug in your PC ",
+                        timeout=2
+                    )
+
+                elif percent <= 50:
+                    notification.notify(
+                        title="Battery Reminder",
+                        message=f" Battery is {percent}.",
+                        timeout=2
+                    )
+
+                elif percent == 100:
+                    notification.notify(
+                        title="Battery Reminder",
+                        message="Fully charged",
+                        timeout=2
+                    )
+
+                else:
+                    notification.notify(
+                        title="Battery Reminder",
+                        message=f"Battery is {percent}",
+                        timeout=2
+                    )
+        elif 'stop' in order:
+
+            sys.exit()
+
+while True:
+    run_bot()
